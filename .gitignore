@@ -1,0 +1,20 @@
+# Compiled object files
+*.o
+
+# Compiled binaries/executables
+*.out
+*.exe
+a.out
+
+# Libraries
+*.so
+*.dylib
+*.dll
+
+# Debug files
+*.dSYM/
+*.stackdump
+*.elf
+*.map
+
+build/

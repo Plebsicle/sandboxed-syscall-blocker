@@ -1,0 +1,26 @@
+{
+  "allowed_syscalls": [
+    "write",
+    "getpid",
+    "exit",
+    "exit_group",
+    "brk",
+    "mmap",
+    "munmap",
+    "arch_prctl",
+    "set_tid_address",
+    "set_robust_list",
+    "rseq",
+    "rt_sigaction",
+    "rt_sigprocmask",
+    "sigaltstack",
+    "mprotect",
+    "close",
+    "read",
+    "openat",
+    "newfstatat",
+    "lseek",
+    "getrandom",
+    "prlimit64"
+  ]
+}
