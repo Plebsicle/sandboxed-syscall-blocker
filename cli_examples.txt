@@ -1,0 +1,143 @@
+cd src/
+
+# Basic usage
+./sandbox --policy ../policies/echo_policy.json --exec /bin/echo Hello
+
+# Verbose mode
+./sandbox --verbose --policy ../policies/ls_policy.json --exec /bin/ls
+
+# Blocklist mode
+./sandbox --policy ../policies/test_block.json --exec /bin/echo Test
+
+
+./sandbox --policy <policy_file.json> --exec <program> [program_args...] [--verbose]
+
+# Simple echo
+cd src/
+./sandbox --policy ../policies/echo_policy.json --exec /bin/echo "Hello World"
+# Output: Hello World
+
+# Echo with multiple words
+./sandbox --policy ../policies/echo_policy.json --exec /bin/echo Testing the sandbox tool
+# Output: Testing the sandbox tool
+
+
+# List current directory
+./sandbox --policy ../policies/ls_policy.json --exec /bin/ls
+
+# List specific directory
+./sandbox --policy ../policies/ls_policy.json --exec /bin/ls ../policies
+
+# List with arguments (basic only, -la might fail due to syscall restrictions)
+./sandbox --policy ../policies/ls_policy.json --exec /bin/ls ..
+
+
+# Run Python one-liner
+./sandbox --policy ../policies/python_policy.json --exec /usr/bin/python3 -c "print('Sandboxed Python')"
+
+# Run Python with calculations
+./sandbox --policy ../policies/python_policy.json --exec /usr/bin/python3 -c "print(2 + 2)"
+
+# Run Python script (if you have one)
+./sandbox --policy ../policies/python_policy.json --exec /usr/bin/python3 my_script.py
+
+# See detailed seccomp operations
+./sandbox --verbose --policy ../policies/echo_policy.json --exec /bin/echo Test
+
+# Output includes:
+# [SANDBOX] Starting sandbox...
+# [SANDBOX] Policy file: ../policies/echo_policy.json
+# [SANDBOX] Target program: /bin/echo
+# [SANDBOX] Policy loaded: mode=allow, syscalls=20
+# [PARENT] Child process started with PID 12345
+# [CHILD] Applying seccomp filter...
+# [CHILD] Executing: /bin/echo
+# [SECCOMP] Mode: ALLOW (default: KILL)
+# [SECCOMP] Allowing syscall: read (0)
+# [SECCOMP] Allowing syscall: write (1)
+# ... (shows all allowed syscalls)
+# Test
+# [PARENT] Child exited with status: 0
+
+
+# Allow everything except network syscalls
+./sandbox --policy ../policies/test_block.json --exec /bin/echo "Network blocked!"
+# Works fine since echo doesn't use networking
+
+# This would demonstrate blocking:
+./sandbox --policy ../policies/test_block.json --exec /bin/ping google.com
+# Would fail if ping tries to use blocked socket syscalls
+
+
+
+# Try to run a program with insufficient permissions
+./sandbox --policy ../policies/echo_policy.json --exec /bin/cat /etc/passwd
+# Output: [PARENT] Child killed by signal: 31 (SIGSYS - seccomp violation)
+# (cat needs more syscalls than echo policy provides)
+
+# Show verbose violation
+./sandbox --verbose --policy ../policies/echo_policy.json --exec /bin/ls
+# Shows which syscalls were allowed, then violation when ls tries restricted syscall
+
+
+# Absolute paths
+./sandbox --policy ../policies/base_policy.json --exec /usr/bin/whoami
+
+# Relative paths (if in PATH)
+./sandbox --policy ../policies/base_policy.json --exec echo Test
+
+# Full path to binary
+./sandbox --policy ../policies/ls_policy.json --exec /usr/bin/ls -l
+
+
+
+# Echo with multiple arguments
+./sandbox --policy ../policies/echo_policy.json --exec /bin/echo arg1 arg2 arg3
+
+# Cat multiple files (if policy allows)
+./sandbox --policy ../policies/base_policy.json --exec /bin/cat file1.txt file2.txt
+
+# Grep pattern
+./sandbox --policy ../policies/base_policy.json --exec /bin/grep "pattern" file.txt
+
+./sandbox --policy ../policies/echo_policy.json --exec /bin/echo Success
+# Exit code: 0
+# Output: [PARENT] Child exited with status: 0
+
+./sandbox --policy ../policies/echo_policy.json --exec /bin/cat /etc/passwd
+# Exit code: typically 0 (parent succeeded, child was killed)
+# Output: [PARENT] Child killed by signal: 31 (SIGSYS - seccomp violation)
+
+./sandbox --policy ../policies/ls_policy.json --exec /bin/ls /nonexistent
+# Shows ls error, then exit status
+
+
+cd src/
+
+# Test 1: Echo
+./sandbox --policy ../policies/echo_policy.json --exec /bin/echo "✓ Echo works"
+
+# Test 2: Ls
+./sandbox --policy ../policies/ls_policy.json --exec /bin/ls
+
+# Test 3: Blocklist
+./sandbox --policy ../policies/test_block.json --exec /bin/echo "✓ Blocklist works"
+
+# Test 4: Base policy (most permissive)
+./sandbox --policy ../policies/base_policy.json --exec /bin/echo "✓ Base policy works"
+
+
+# Should succeed
+./sandbox --policy ../policies/echo_policy.json --exec /bin/echo "Safe operation"
+
+# Should fail with SIGSYS
+./sandbox --policy ../policies/echo_policy.json --exec /bin/ls
+./sandbox --policy ../policies/echo_policy.json --exec /bin/cat /etc/shadow
+
+
+# Won't work directly (shell needs many syscalls)
+./sandbox --policy ../policies/base_policy.json --exec /bin/sh -c "echo test"
+
+# Better to execute commands directly
+./sandbox --policy ../policies/echo_policy.json --exec /bin/echo test
+

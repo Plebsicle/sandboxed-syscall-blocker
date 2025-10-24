@@ -1,0 +1,13 @@
+{
+  "mode": "block",
+  "syscalls": [
+    "socket",
+    "connect",
+    "bind",
+    "listen",
+    "accept",
+    "sendto",
+    "recvfrom"
+  ]
+}
+

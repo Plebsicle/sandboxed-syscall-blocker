@@ -1,0 +1,10 @@
+{
+  "mode": "allow",
+  "syscalls": [
+    "read",
+    "write",
+    "exit",
+    "exit_group"
+  ]
+}
+

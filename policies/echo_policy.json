@@ -1,0 +1,26 @@
+{
+  "mode": "allow",
+  "syscalls": [
+    "read",
+    "write",
+    "close",
+    "mmap",
+    "mprotect",
+    "munmap",
+    "brk",
+    "pread64",
+    "access",
+    "execve",
+    "arch_prctl",
+    "set_tid_address",
+    "openat",
+    "newfstatat",
+    "set_robust_list",
+    "prlimit64",
+    "getrandom",
+    "rseq",
+    "exit",
+    "exit_group"
+  ]
+}
+
