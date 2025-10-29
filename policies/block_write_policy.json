@@ -1,0 +1,7 @@
+{
+  "mode": "block",
+  "syscalls": [
+    "write"
+  ]
+}
+

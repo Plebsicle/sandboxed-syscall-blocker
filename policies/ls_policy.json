@@ -41,7 +41,10 @@
     "connect",
     "socket",
     "getrandom",
-    "rseq"
+    "rseq",
+    "futex",
+    "lgetxattr",
+    "getxattr"
   ]
 }
 

@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <signal.h> 
 #include <sys/ptrace.h>
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -160,10 +161,15 @@ int run_with_ptrace_dynamic(Policy *policy, char **exec_args, int verbose) {
                     last_blocked_syscall = syscall_num;
                 }
             } else {
-                if (last_blocked_syscall != -1 && syscall_num == last_blocked_syscall) {
+                if (last_blocked_syscall != -1) {
                     regs.rax = -EPERM;
                     if (ptrace(PTRACE_SETREGS, child_pid, 0, &regs) == -1) {
                         perror("ptrace PTRACE_SETREGS");
+                    }
+                    if (verbose) {
+                        const char *syscall_name = get_syscall_name(last_blocked_syscall);
+                        printf("[TRACE] Injecting EPERM for blocked syscall: %s (%d)\n", 
+                               syscall_name, last_blocked_syscall);
                     }
                     last_blocked_syscall = -1;
                 }
